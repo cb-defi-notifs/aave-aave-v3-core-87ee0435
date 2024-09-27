@@ -5,6 +5,7 @@ import {GPv2SafeERC20} from '../../../dependencies/gnosis/contracts/GPv2SafeERC2
 import {SafeCast} from '../../../dependencies/openzeppelin/contracts/SafeCast.sol';
 import {IERC20} from '../../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {IAToken} from '../../../interfaces/IAToken.sol';
+import {IPool} from '../../../interfaces/IPool.sol';
 import {IFlashLoanReceiver} from '../../../flashloan/interfaces/IFlashLoanReceiver.sol';
 import {IFlashLoanSimpleReceiver} from '../../../flashloan/interfaces/IFlashLoanSimpleReceiver.sol';
 import {IPoolAddressesProvider} from '../../../interfaces/IPoolAddressesProvider.sol';
@@ -132,39 +133,7 @@ library FlashLoanLogic {
           })
         );
       } else {
-        // If the user chose to not return the funds, the system checks if there is enough collateral and
-        // eventually opens a debt position
-        BorrowLogic.executeBorrow(
-          reservesData,
-          reservesList,
-          eModeCategories,
-          userConfig,
-          DataTypes.ExecuteBorrowParams({
-            asset: vars.currentAsset,
-            user: msg.sender,
-            onBehalfOf: params.onBehalfOf,
-            amount: vars.currentAmount,
-            interestRateMode: DataTypes.InterestRateMode(params.interestRateModes[vars.i]),
-            referralCode: params.referralCode,
-            releaseUnderlying: false,
-            maxStableRateBorrowSizePercent: params.maxStableRateBorrowSizePercent,
-            reservesCount: params.reservesCount,
-            oracle: IPoolAddressesProvider(params.addressesProvider).getPriceOracle(),
-            userEModeCategory: params.userEModeCategory,
-            priceOracleSentinel: IPoolAddressesProvider(params.addressesProvider)
-              .getPriceOracleSentinel()
-          })
-        );
-        // no premium is paid when taking on the flashloan as debt
-        emit FlashLoan(
-          params.receiverAddress,
-          msg.sender,
-          vars.currentAsset,
-          vars.currentAmount,
-          DataTypes.InterestRateMode(params.interestRateModes[vars.i]),
-          0,
-          params.referralCode
-        );
+        revert('FLASHLOAN_INTO_BORROW_DEPRECATED');
       }
     }
   }
